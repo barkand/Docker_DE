@@ -1,6 +1,5 @@
-version: '3'
+version: "3"
 services:
-
   postgres:
     image: postgres:${POSTGRES_VERSION}
     container_name: postgres-${POSTGRES_VERSION}
@@ -13,9 +12,8 @@ services:
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
     networks:
-    - network  
+      - databases-network
 
-networks:
-  network: 
-
-# postgres -V
+  databases-network:
+    driver: bridge
+    name: databases-network
