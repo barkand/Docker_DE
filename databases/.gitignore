@@ -9,3 +9,4 @@ mariadb/
 mongodb/
 postgres/
 redis/
+influxdb/data/*

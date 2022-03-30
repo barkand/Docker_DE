@@ -1,6 +1,5 @@
-version: '3'
+version: "3"
 services:
-
   influxdb:
     image: influxdb:${INFLUXDB_VERSION}
     container_name: influxdb-${INFLUXDB_VERSION}
@@ -10,9 +9,11 @@ services:
       - ${INFLUXDB_PORT3}:8090
       - ${INFLUXDB_PORT4}:2003
     volumes:
-      - /srv/docker/influxdb/data:/var/lib/influxdb
+      - ./influxdb/data:/var/lib/influxdb
     networks:
-    - network  
+      - influxdb-network
 
 networks:
-  network: 
+  influxdb-network:
+    driver: bridge
+    name: influxdb-network
