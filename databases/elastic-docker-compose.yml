@@ -1,0 +1,19 @@
+version: '3.2'
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: elastic-${ELASTIC_VERSION}
+    ports:
+      - ${ELASTIC_PORT1}:9200
+      - ${ELASTIC_PORT2}:9300
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      ELASTIC_USERNAME: elastic
+      ELASTIC_PASSWORD: ${USER_PASSWORD}
+      discovery.type: single-node
+    networks:
+    - network  
+
+networks:
+  network: 

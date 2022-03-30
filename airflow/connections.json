@@ -1,0 +1,29 @@
+{
+    "1":
+        {
+        "Conn Id": "fs_temp",
+        "Conn Type": "File",
+        "Extra":
+            {
+                "path":"/mnt"
+            }
+        },
+    "2":
+        {
+            "Conn Id": "postgres_ODS",
+            "Conn Type": "postgres",
+            "Host": "postgres-13.4",
+            "Login": "admin",
+            "Password": "admin",
+            "Port": "5432"
+        },
+    "3":
+        {
+            "Conn Id": "webhdfs_default",
+            "Conn Type": "hdfs",
+            "Host": "namenode",
+            "Login": "admin",
+            "Password": "admin",
+            "Port": "9870"
+        }
+}

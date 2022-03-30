@@ -1,0 +1,4 @@
+# this version of psutil does not ship binary wheels: must be compiled
+findspark
+pyspark
+jupyter

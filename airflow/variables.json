@@ -1,0 +1,6 @@
+{
+    "ATS_DAILY_FILE_NAME": "daily_trades",
+    "ATS_HDFS_PATH": "/data/data_lake/stock/tse/fa_year=",
+    "ATS_LIVE_FILE_NAME": "live_trades",
+    "SHARE_PATH": "/mnt"
+}

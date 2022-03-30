@@ -1,0 +1,105 @@
+version: '3'
+services:
+
+  loki:
+    image: grafana/loki:${LOKI_VERSION}
+    container_name: plg-loki
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes: 
+      - ./plg/loki/tmp:/tmp/loki
+      - ./plg/loki/config/local-config.yaml:/etc/loki/local-config.yaml
+    networks:
+      - plg-network
+      # - grafana-loki
+      # - promtail-loki
+
+  promtail:
+    image: grafana/promtail:${PROMTAIL_VERSION}
+    container_name: plg-promtail
+    command: -config.file=/etc/promtail/docker-config.yaml
+    depends_on:
+      - loki
+    volumes:
+      - ./plg/promtail/log:/var/log      
+      - ./plg/promtail/config/docker-config.yaml:/etc/promtail/docker-config.yaml
+    networks: 
+      - plg-network
+      # - promtail-loki
+
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_VERSION}
+    container_name: plg-prometheus
+    ports:
+      - ${PROMETHEUS_PORT}:9090
+    command: >-
+      --config.file=/app.cfg/prometheus.yml
+      --storage.tsdb.path=/prometheus
+      --web.console.libraries=/usr/share/prometheus/console_libraries
+      --web.console.templates=/usr/share/prometheus/consoles
+    volumes:
+      - ./plg/prometheus/config:/app.cfg
+      - ./plg/prometheus/:/etc/prometheus/
+    networks:
+      - plg-network
+      # - world
+      # - prometheus-cadvisor
+      # - grafana-prometheus
+
+  cadvisor:
+    image: google/cadvisor:${CADVISOR_VERSION}
+    container_name: plg-cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - plg-network
+      # - prometheus-cadvisor
+
+  grafana:
+    image: grafana/grafana:${GRAFANA_VERSION}
+    container_name: plg-grafana
+    ports:
+      - ${GRAFANA_PORT}:3000
+    # links:
+    #   - influxdb
+    depends_on:
+      - loki   
+      - prometheus
+    environment:
+      GF_SECURITY_ADMIN_USER: ${USER_PASSWORD}
+      GF_SECURITY_ADMIN_PASSWORD: ${USER_PASSWORD}
+      GF_PATHS_PROVISIONING: '/app.cfg/provisioning'
+    volumes:
+      - ./plg/grafana/config:/app.cfg 
+      - ./plg/grafana/data:/var/lib/grafana
+    networks:
+      - plg-network
+      # - world
+      # - grafana-loki
+      # - grafana-prometheus
+  
+
+volumes:
+  grafana:
+    name: grafana
+  loki:
+    name: loki
+  prometheus:
+    name: prometheus
+
+networks:
+  plg-network:
+    driver: bridge
+    name: plg-network
+    # world:
+    # promtail-loki:
+    #     internal: true
+    # grafana-loki:
+    #     internal: true
+    # grafana-prometheus:
+    #     internal: true
+    # prometheus-cadvisor:
+    #     internal: true

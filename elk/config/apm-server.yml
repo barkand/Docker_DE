@@ -1,0 +1,12 @@
+apm-server:
+  host: 0.0.0.0:8200
+  ssl.enabled: false
+  ssl.verification_mode: none
+output:
+  elasticsearch:
+    hosts: ['http://elasticsearch:9200']
+    username: elastic
+    password: admin
+    protocol: https
+    ssl.enabled: false
+    ssl.verification_mode: none

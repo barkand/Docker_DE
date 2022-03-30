@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  trino:
+    image: trinodb/trino:${TRINO_VERSION}
+    container_name: trino
+    ports:
+      - ${TRINO_PORT}:8080
+    volumes:
+      - ./trino/catalog:/etc/trino/catalog
+      - ./trino/data:/home/trino/data
+    networks:
+      - trino-network
+
+networks:
+  trino-network:
+    driver: bridge
+    name: trino-network

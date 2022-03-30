@@ -1,0 +1,95 @@
+version: '3.2'
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: elk-elasticsearch
+    ports:
+      - ${ELASTIC_SEARCH1_PORT}:9200
+      - ${ELASTIC_SEARCH2_PORT}:9300
+    restart: always
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: ${USER_PASSWORD}
+      discovery.type: single-node
+    volumes: 
+      - type: bind
+        source: ./elk/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
+      - type: bind
+        source: ./elastic/elasticsearch/es01/data
+        target: /usr/share/elasticsearch/data
+      - type: bind
+        source: ./elk/elasticsearch/es01/logs
+        target: /usr/share/elasticsearch/logs
+    networks:
+      - elk-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION}
+    container_name: elk-kibana
+    ports:
+      - ${ELK_KIBANA_PORT}:5601
+    volumes:
+      - type: bind
+        source: ./elk/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    networks:
+      - elk-network
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${LOGSTASH_VERSION}
+    container_name: elk-logstash
+    ports:
+      - ${ELK_LOGSTASH1_PORT}:5044
+      - ${ELK_LOGSTASH2_PORT}:5000/tcp
+      - ${ELK_LOGSTASH2_PORT}:5000/udp
+      - ${ELK_LOGSTASH3_PORT}:9600
+    volumes:
+      - type: bind
+        source: ./elk/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./elk/logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        read_only: true
+      - type: bind
+        source: ./elk/logstash/data
+        target: /data
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk-network
+    depends_on:
+      - elasticsearch
+
+  # apm-server:
+  #   image: docker.elastic.co/apm/apm-server:${APM_VERSION}
+  #   container_name: elk-apm
+  #   ports:
+  #     - ${ELK_APM_PORT}:8200
+  #   command:
+  #     - --strict.perms=false
+  #   volumes:
+  #     - type: bind
+  #       source: ./elk/config/apm-server.yml
+  #       target: /usr/share/apm-server/apm-server.yml
+  #       read_only: true
+  #   networks:
+  #     - elk-network
+      
+networks:
+  elk-network:
+    driver: bridge
+    name: elk-network
+
+volumes:
+  elasticsearch:

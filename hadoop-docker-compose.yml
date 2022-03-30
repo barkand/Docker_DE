@@ -1,0 +1,141 @@
+version: "3.7"
+services:
+
+  namenode:
+    image: bde2020/hadoop-namenode:${HADOOP_VERSION}
+    container_name: hadoop-namenode
+    restart: always
+    hostname:
+      namenode
+    environment:
+      - CLUSTER_NAME=test
+    ports:
+      - ${HADOOP_NAME_NODE1_PORT}:9870 # Web
+      - ${HADOOP_NAME_NODE2_PORT}:9000
+    volumes:
+      - ./hadoop/hadoop_namenode:/hadoop/dfs/name
+      - ./hadoop/hdfs_data:/data
+      - ../Shared/tse:/mnt
+    env_file:
+      - ./Hadoop/hadoop.env
+    networks:
+      - hadoop-network
+
+  datanode:
+    image: bde2020/hadoop-datanode:${HADOOP_VERSION}
+    container_name: hadoop-datanode
+    restart: always
+    hostname:
+      datanode
+    ports:
+      - ${HADOOP_DATA_NODE_PORT}:9864
+    volumes:
+      - ./hadoop/hadoop_datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: namenode:${HADOOP_NAME_NODE1_PORT}
+    env_file:
+      - ./hadoop/hadoop.env
+    networks:
+      - hadoop-network
+  
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:${HADOOP_VERSION}
+    container_name: hadoop-resourcemanager
+    hostname:
+      resourcemanager
+    ports:
+      - ${HADOOP_RESOURCE_MANAGER1_PORT}:8088
+      - ${HADOOP_RESOURCE_MANAGER2_PORT}:8032
+      - ${HADOOP_RESOURCE_MANAGER3_PORT}:8031
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:${HADOOP_NAME_NODE1_PORT} datanode:${HADOOP_DATA_NODE_PORT}"
+    env_file:
+      - ./hadoop/hadoop.env
+    networks:
+      - hadoop-network
+
+  nodemanager1:
+    image: bde2020/hadoop-nodemanager:${HADOOP_VERSION}
+    container_name: hadoop-nodemanager1
+    restart: always
+    hostname:
+      nodemanager
+    ports:
+      - ${HADOOP_NODE_MANAGER1_PORT}:8042
+    environment:
+      SERVICE_PRECONDITION: "namenode:${HADOOP_NAME_NODE1_PORT} datanode:${HADOOP_DATA_NODE_PORT} resourcemanager:${HADOOP_RESOURCE_MANAGER1_PORT}"
+    env_file:
+      - ./hadoop/hadoop.env
+    networks:
+      - hadoop-network
+  
+  historyserver:
+    image: bde2020/hadoop-historyserver:${HADOOP_VERSION}
+    container_name: hadoop-historyserver
+    restart: always
+    hostname:
+      historyserver
+    ports:
+      - ${HADOOP_HISTORY_SERVER_PORT}:8188
+    environment:
+      SERVICE_PRECONDITION: "namenode:${HADOOP_NAME_NODE1_PORT} datanode:${HADOOP_DATA_NODE_PORT} resourcemanager:${HADOOP_RESOURCE_MANAGER1_PORT}"
+    volumes:
+      - ./hadoop/hadoop_historyserver:/hadoop/yarn/timeline
+    env_file:
+      - ./hadoop/hadoop.env
+    networks:
+      - hadoop-network
+
+  hive-server:
+    image: bde2020/hive:${HIVE_METASTORE_VERSION}
+    container_name : hive-server
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+      SERVICE_PRECONDITION: "hive-metastore:${HIVE_METASTORE_PORT}"
+    ports:
+      - ${HIVE_SERVER1_PORT}:10000 # Hive db
+      - ${HIVE_SERVER2_PORT}:10001
+      - ${HIVE_SERVER3_PORT}:10002 # Hive Server Web
+    env_file:
+      - ./hadoop/hadoop.env
+    networks:
+      - hadoop-network
+
+  hive-metastore:
+    image: bde2020/hive:${HIVE_METASTORE_VERSION}
+    container_name: hive-metastore
+    command: /opt/hive/bin/hive --service metastore
+    environment:
+      SERVICE_PRECONDITION: "hive-metastore-postgresql:5432"
+    ports:
+      - ${HIVE_METASTORE_PORT}:9083
+    volumes:
+      - ./hadoop/hive_data:/var/lib/postgresl/data/
+    env_file:
+      - ./hadoop/hadoop.env
+    networks:
+      - hadoop-network
+
+  hive-metastore-postgresql:
+    image: bde2020/hive-metastore-postgresql:${HIVE_POSTGRESQL_VERSION}
+    container_name: hive-metastore-postgresql
+    ports:
+      - ${HIVE_METASTORE_POSTGRESQL_PORT}:5432
+    volumes:
+      - ./hadoop/postgres_data:/var/lib/postgresql/data
+    networks:
+      - hadoop-network
+
+volumes:
+  hadoop_namenode:
+  hadoop_datanode:
+  hadoop_historyserver:
+  hive_data:
+
+
+networks:
+  hadoop-network:
+    driver: bridge
+    name: hadoop-network
+    

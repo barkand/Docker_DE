@@ -1,0 +1,21 @@
+version: '3'
+services:
+
+  influxdb:
+    image: influxdb:${INFLUXDB_VERSION}
+    container_name: influxdb
+    ports:
+      - ${INFLUXDB1_PORT}:8083
+      - ${INFLUXDB2_PORT}:8086
+      - ${INFLUXDB3_PORT}:8090
+      - ${INFLUXDB4_PORT}:2003
+    volumes:
+      - ./influxdb/data:/var/lib/influxdb
+    networks:
+      - influxdb-network
+  
+
+networks:
+  influxdb-network:
+    driver: bridge
+    name: influxdb-network      

@@ -1,0 +1,20 @@
+version: '3'
+services:
+
+  mariadb:
+    image: mariadb:${MARIA_VERSION}
+    container_name: mariadb-${MARIA_VERSION}
+    ports:
+      - ${MARIA_PORT1}:3306
+    volumes:
+      - ./mariadb/:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: mariadb
+      MYSQL_ROOT_PASSWORD: ${USER_PASSWORD}
+      MYSQL_USER: ${USER_PASSWORD}
+      MYSQL_PASSWORD: ${USER_PASSWORD}
+    networks:
+    - network  
+
+networks:
+  network: 

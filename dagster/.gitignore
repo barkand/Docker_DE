@@ -1,0 +1,8 @@
+careal_processing/*
+!careal_processing/careal_processing
+!careal_processing/careal_processing_tests
+careal_processing/**/__init__.py
+
+__pycache__
+.venv
+logs/*

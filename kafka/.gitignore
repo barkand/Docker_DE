@@ -1,0 +1,5 @@
+kafka-cluster/*
+zoo-cluster/*
+ksqldb/*
+
+.venv

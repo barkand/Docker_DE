@@ -1,0 +1,4 @@
+pyarrow
+jdatetime
+requests
+kafka-python

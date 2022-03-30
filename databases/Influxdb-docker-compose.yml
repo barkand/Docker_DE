@@ -1,0 +1,18 @@
+version: '3'
+services:
+
+  influxdb:
+    image: influxdb:${INFLUXDB_VERSION}
+    container_name: influxdb-${INFLUXDB_VERSION}
+    ports:
+      - ${INFLUXDB_PORT1}:8083
+      - ${INFLUXDB_PORT2}:8086
+      - ${INFLUXDB_PORT3}:8090
+      - ${INFLUXDB_PORT4}:2003
+    volumes:
+      - /srv/docker/influxdb/data:/var/lib/influxdb
+    networks:
+    - network  
+
+networks:
+  network: 

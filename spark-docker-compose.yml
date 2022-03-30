@@ -1,0 +1,124 @@
+version: '3.6'
+services:
+
+  spark-master:
+    image: ${SPARK_VERSION}
+    build: ./spark/build/spark
+    container_name: spark-master
+    hostname: spark-master
+    ports:
+      - ${SPARK_MASTER1_PORT}:8080
+      - ${SPARK_MASTER2_PORT}:7077
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+      - SPARK_LOCAL_IP=spark-master
+      - SPARK_WORKLOAD=master
+      - SPARK_LOCAL_HOSTNAME=spark-master
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:${HDFS_NAMENODE_PORT} #hadoop
+    volumes:
+       - ./spark/shared/apps:/opt/spark-apps
+       - ./spark/shared/data:/opt/spark-data
+       - ./spark/master/logs:/opt/spark/logs
+    env_file:
+      - ./Hadoop/hadoop.env
+    networks:
+      - spark-network
+      - hadoop-network
+
+  spark-worker1:
+    image: ${SPARK_VERSION}
+    build: ./spark/build/spark
+    container_name: spark-worker1
+    hostname: spark-worker1
+    depends_on:
+      - spark-master
+    ports:
+      - ${SPARK_WORKER11_PORT}:8080
+      - ${SPARK_WORKER12_PORT}:7000
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker1
+      - SPARK_LOCAL_HOSTNAME=spark-worker1
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:${HDFS_NAMENODE_PORT}
+    volumes:
+      - ./spark/shared/apps:/opt/spark-apps
+      - ./spark/shared/data:/opt/spark-data
+      - ./spark/worker/worker1/logs:/opt/spark/logs
+    env_file:
+      - ./Hadoop/hadoop.env
+    networks:
+      - spark-network
+      - hadoop-network
+
+  spark-worker2:
+    image: ${SPARK_VERSION}
+    build: ./spark/build/spark
+    container_name: spark-worker2
+    hostname: spark-worker2
+    depends_on:
+      - spark-master
+    ports:
+      - ${SPARK_WORKER21_PORT}:8080
+      - ${SPARK_WORKER22_PORT}:7000
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker2
+      - SPARK_LOCAL_HOSTNAME=spark-worker2
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:${HDFS_NAMENODE_PORT}
+    volumes:
+      - ./spark/shared/apps:/opt/spark-apps
+      - ./spark/shared/data:/opt/spark-data
+      - ./spark/worker/worker2/logs:/opt/spark/logs
+    env_file:
+      - ./Hadoop/hadoop.env
+    networks:
+      - spark-network
+      - hadoop-network
+
+  
+# tip: First time Run without pyspark (for make image) then run this service
+  pyspark:
+    image: ${PYSPARK_VERSION}    
+    build: ./spark/build/pyspark
+    container_name: spark-pyspark
+    hostname: pyspark
+    ports:
+      - ${SPARK_PYSPARK_PORT}:8888
+      - 4040-4042:4040-4042
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_LOCAL_IP=pyspark
+      - SPARK_WORKLOAD=submit
+      - SPARK_LOCAL_HOSTNAME=pyspark
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:${HDFS_NAMENODE_PORT}
+    depends_on:
+        - spark-master  
+    volumes:
+      - ./spark/shared/apps:/opt/spark-apps
+      - ./spark/shared/data:/opt/spark-data
+      - ./spark/pyspark/config:/root/.jupyter  # save password config
+      - ./spark/notebooks:/opt/spark-notebooks
+    env_file:
+      - ./Hadoop/hadoop.env
+    networks:
+      - spark-network
+      - hadoop-network
+
+
+networks:
+  spark-network:
+    driver: bridge
+    name: spark-network
+  hadoop-network:
+    external: true
+    

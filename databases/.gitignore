@@ -1,0 +1,11 @@
+mssql/data
+mssql/log
+mssql/backup
+mssql/secrets
+
+cassandra/
+elastic/
+mariadb/
+mongodb/
+postgres/
+redis/

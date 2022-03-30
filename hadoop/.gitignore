@@ -1,0 +1,4 @@
+*_data/*
+hadoop_*/*
+**/*.parquet
+postgres_data/*

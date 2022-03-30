@@ -1,0 +1,139 @@
+version: '3'
+
+x-airflow-common:
+  &airflow-common
+  image: ${AIRFLOW_VERSION}    
+  build:
+    context: ./airflow/build
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@airflow-postgres/airflow
+    AIRFLOW__CELERY__BROKER_URL: redis://:@airflow-redis:6379/0
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/plugins:/opt/airflow/plugins
+    - ./airflow/logs:/opt/airflow/logs
+    - ../Shared/tse:/mnt
+
+  user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
+  depends_on:
+    airflow-redis:
+      condition: service_healthy
+    airflow-postgres:
+      condition: service_healthy
+      
+      
+services:
+
+  airflow-postgres:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: airflow-postgres
+    ports:
+      - ${AIRFLOW_POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_USER: ${USER_PASSWORD}
+      POSTGRES_PASSWORD: ${USER_PASSWORD}
+      POSTGRES_DB: airflow
+    volumes:
+      - ./airflow/postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
+    networks:
+      - airflow-network
+
+  airflow-redis:
+    image: redis:${REDIS_VERSION}
+    container_name: airflow-redis
+    ports:
+      - ${AIRFLOW_REDIS_PORT}:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always
+    networks:
+      - airflow-network
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    container_name: airflow-webserver
+    ports:
+      - ${AIRFLOW_WEBSERVER_PORT}:8080
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    networks:
+      - airflow-network
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    container_name: airflow-scheduler
+    restart: always
+    networks:
+      - airflow-network
+      
+  airflow-worker1:
+    <<: *airflow-common
+    command: celery worker
+    container_name: airflow-worker1
+    restart: always
+    networks:
+      - airflow-network
+      
+  # airflow-worker2:
+  #   <<: *airflow-common
+  #   command: celery worker
+  #   container_name: airflow-worker2
+  #   restart: always
+  #   networks:
+  #     - airflow-network
+      
+  airflow-init:
+    <<: *airflow-common
+    command: version
+    container_name: airflow-init
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_USERNAME}
+      _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_PASSWORD}
+    networks:
+      - airflow-network
+
+  flower:
+    <<: *airflow-common
+    command: celery flower
+    container_name: airflow-flower
+    ports:
+      - ${FLOWER_PORT}:5555
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    networks:
+    - airflow-network   
+
+volumes:
+  postgres-db-volume:
+
+networks:
+  airflow-network:
+    driver: bridge
+    name: airflow-network
