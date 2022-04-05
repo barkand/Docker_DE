@@ -1,12 +1,10 @@
 version: '3'
 
-x-airflow-common:
-  &airflow-common
-  image: ${AIRFLOW_VERSION}    
+x-airflow-common: &airflow-common
+  image: ${AIRFLOW_VERSION}
   build:
     context: ./airflow/build
-  environment:
-    &airflow-common-env
+  environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@airflow-postgres/airflow
@@ -18,7 +16,7 @@ x-airflow-common:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/plugins:/opt/airflow/plugins
     - ./airflow/logs:/opt/airflow/logs
-    - ../Shared/tse:/mnt
+    # - ../Shared:/mnt
 
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
@@ -26,10 +24,8 @@ x-airflow-common:
       condition: service_healthy
     airflow-postgres:
       condition: service_healthy
-      
-      
-services:
 
+services:
   airflow-postgres:
     image: postgres:${POSTGRES_VERSION}
     container_name: airflow-postgres
@@ -85,7 +81,7 @@ services:
     restart: always
     networks:
       - airflow-network
-      
+
   airflow-worker1:
     <<: *airflow-common
     command: celery worker
@@ -93,7 +89,7 @@ services:
     restart: always
     networks:
       - airflow-network
-      
+
   # airflow-worker2:
   #   <<: *airflow-common
   #   command: celery worker
@@ -101,7 +97,7 @@ services:
   #   restart: always
   #   networks:
   #     - airflow-network
-      
+
   airflow-init:
     <<: *airflow-common
     command: version
@@ -128,7 +124,7 @@ services:
       retries: 5
     restart: always
     networks:
-    - airflow-network   
+      - airflow-network
 
 volumes:
   postgres-db-volume:
