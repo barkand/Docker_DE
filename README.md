@@ -15,16 +15,16 @@ Docker Compose for Data Engineers
 
 ## Data Services:
 
-- hadoop
-- kafka
-- spark
-- airflow
-- trino
-- elk
-  - elasticsearch
-  - logstash
-  - kibana
-- plg
-  - prometheus
-  - loki
-  - grafana
+- Hadoop
+- Kafka
+- Spark
+- Airflow
+- Trino
+- ELK
+  - Elasticsearch
+  - Logstash
+  - Kibana
+- PLG
+  - Prometheus
+  - Loki
+  - Grafana
