@@ -5,13 +5,13 @@ Docker Compose for Data Engineers
 ## Databases:
 
 - Influxdb
-- cassandra
-- elastic
-- mariadb
-- mongodb
-- mssql (linux version)
-- postgres
-- redis
+- Cassandra
+- Elastic
+- Mariadb
+- Mongodb
+- MSSQL (linux version)
+- Postgres
+- Redis
 
 ## Data Services:
 
