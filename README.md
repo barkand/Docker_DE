@@ -14,6 +14,7 @@ Docker Compose for Data Engineers
 - Postgres
 - Redis
 
+
 ## Data Services:
 
 - Hadoop
