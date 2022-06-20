@@ -11,6 +11,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${USER_PASSWORD}
     networks:
     - network  
+    restart: always
+    volumes:
+      - ./mongodb/data:/data
 
 networks:
   network: 
