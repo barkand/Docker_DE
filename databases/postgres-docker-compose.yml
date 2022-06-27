@@ -9,11 +9,11 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: ${USER_PASSWORD}
       POSTGRES_PASSWORD: ${USER_PASSWORD}
+    restart: always
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
     networks:
-      - databases-network
+      - network
 
-  databases-network:
-    driver: bridge
-    name: databases-network
+networks:
+  network:
