@@ -1,15 +1,14 @@
-version: '3'
+version: "3"
 services:
-
   redis:
     image: redis:${REDIS_VERSION}
     container_name: redis-${REDIS_VERSION}
+    restart: always
     ports:
       - ${REDIS_PORT1}:6379
     networks:
-    - network  
+      - network
 
 networks:
-  network: 
-
-# redis-server --version    
+  network:
+# redis-server --version
