@@ -1,23 +1,23 @@
-version: '3'
+version: "3"
 services:
-
   cassandra-node1:
     image: cassandra:${CASSANDRA_VERSION}
     container_name: cassandra-${CASSANDRA_VERSION}
+    restart: always
     ports:
-      - ${CASSANDRA_PORT1}:9042   # Native transport
-      - ${CASSANDRA_PORT2}:7199   # JMX
-      - ${CASSANDRA_PORT3}:9160   # Thrift clients
+      - ${CASSANDRA_PORT1}:9042 # Native transport
+      - ${CASSANDRA_PORT2}:7199 # JMX
+      - ${CASSANDRA_PORT3}:9160 # Thrift clients
       - ${CASSANDRA_PORT4}:7000
     environment:
       - HEAP_NEWSIZE=12M
       - MAX_HEAP_SIZE=64M
-    #   - CASSANDRA_CLUSTER_NAME=cassandra-cluster
+      #   - CASSANDRA_CLUSTER_NAME=cassandra-cluster
       - CASSANDRA_SEEDS=cassandra-node1
       - CASSANDRA_PASSWORD_SEEDER=yes
       - CASSANDRA_PASSWORD=${SAFE_PASSWORD}
       # - CASSANDRA_TRANSPORT_PORT_NUMBER=7000
-    volumes: 
+    volumes:
       - ./cassandra:/var/lib/cassandra
     # healthcheck:
     #   test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
@@ -25,7 +25,7 @@ services:
     #   timeout: 5s
     #   retries: 50
     networks:
-    - network   
+      - network
 
 volumes:
   cassandra_data:
