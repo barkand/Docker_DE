@@ -12,6 +12,7 @@ services:
       ELASTIC_USERNAME: elastic
       ELASTIC_PASSWORD: ${USER_PASSWORD}
       discovery.type: single-node
+    restart: always
     networks:
     - network  
 
