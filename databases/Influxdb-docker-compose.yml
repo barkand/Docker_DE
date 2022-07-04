@@ -3,6 +3,7 @@ services:
   influxdb:
     image: influxdb:${INFLUXDB_VERSION}
     container_name: influxdb-${INFLUXDB_VERSION}
+    restart: always
     ports:
       - ${INFLUXDB_PORT1}:8083
       - ${INFLUXDB_PORT2}:8086
