@@ -1,9 +1,9 @@
-version: '3.2'
+version: "3.2"
 services:
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
     container_name: elastic-${ELASTIC_VERSION}
+    restart: always
     ports:
       - ${ELASTIC_PORT1}:9200
       - ${ELASTIC_PORT2}:9300
@@ -12,9 +12,8 @@ services:
       ELASTIC_USERNAME: elastic
       ELASTIC_PASSWORD: ${USER_PASSWORD}
       discovery.type: single-node
-    restart: always
     networks:
-    - network  
+      - network
 
 networks:
-  network: 
+  network:
