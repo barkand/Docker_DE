@@ -3,11 +3,11 @@ services:
   mariadb:
     image: mariadb:${MARIA_VERSION}
     container_name: mariadb-${MARIA_VERSION}
+    restart: always
     ports:
       - ${MARIA_PORT1}:3306
     volumes:
       - ./mariadb/:/var/lib/mysql
-    restart: always
     environment:
       MYSQL_DATABASE: mariadb
       MYSQL_ROOT_PASSWORD: ${USER_PASSWORD}
