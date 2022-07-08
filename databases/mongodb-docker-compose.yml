@@ -1,19 +1,18 @@
-version: '3.1'
+version: "3.1"
 services:
-
   mongo:
     image: mongo
     container_name: mongo-${MONGO_VERSION}
+    restart: always
     ports:
       - ${MONGO_PORT1}:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${USER_PASSWORD}
       MONGO_INITDB_ROOT_PASSWORD: ${USER_PASSWORD}
     networks:
-    - network  
-    restart: always
+      - network
     volumes:
       - ./mongodb/data:/data
 
 networks:
-  network: 
+  network:
