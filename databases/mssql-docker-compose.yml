@@ -1,23 +1,22 @@
 version: "3.4"
 
 services:
-
   sqldata:
     image: mcr.microsoft.com/mssql/server:${MSSQL_VERSION}
     container_name: mssql-${MSSQL_VERSION}
+    restart: always
     ports:
       - ${MSSQL_PORT1}:1433
     environment:
       - SA_PASSWORD=${SAFE_PASSWORD}
       - ACCEPT_EULA=Y
-    restart: always
     volumes:
       - ./mssql/data:/var/opt/mssql/data
       - ./mssql/log:/var/opt/mssql/log
       - ./mssql/backup:/var/opt/mssql/backup
       - ./mssql/secrets:/var/opt/mssql/secrets
     networks:
-    - network   
+      - network
 
 volumes:
   sqldata:
