@@ -103,6 +103,7 @@ services:
     image: confluentinc/cp-kafka-rest:${KAFKA_VERSION}
     hostname: kafka-rest-proxy
     container_name: kafka-rest-proxy
+    restart: always
     depends_on:
       - kafka1
       - kafka-schema-registry
@@ -115,7 +116,6 @@ services:
       KAFKA_REST_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:${KAFKA_SCHEMA_REGISTRY_PORT}
     networks:
       - kafka-network
-    restart: always
 
   kafka-akhq:
     image: tchiotludo/akhq
