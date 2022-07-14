@@ -29,6 +29,7 @@ services:
   airflow-postgres:
     image: postgres:${POSTGRES_VERSION}
     container_name: airflow-postgres
+    restart: always
     ports:
       - ${AIRFLOW_POSTGRES_PORT}:5432
     environment:
@@ -41,7 +42,6 @@ services:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 5s
       retries: 5
-    restart: always
     networks:
       - airflow-network
 
