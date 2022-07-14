@@ -48,9 +48,9 @@ services:
   airflow-redis:
     image: redis:${REDIS_VERSION}
     container_name: airflow-redis
+    restart: always
     ports:
       - ${AIRFLOW_REDIS_PORT}:6379
-    restart: always
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
