@@ -1,12 +1,10 @@
 version: "3.7"
 services:
-
   namenode:
     image: bde2020/hadoop-namenode:${HADOOP_VERSION}
     container_name: hadoop-namenode
     restart: always
-    hostname:
-      namenode
+    hostname: namenode
     environment:
       - CLUSTER_NAME=test
     ports:
@@ -25,8 +23,7 @@ services:
     image: bde2020/hadoop-datanode:${HADOOP_VERSION}
     container_name: hadoop-datanode
     restart: always
-    hostname:
-      datanode
+    hostname: datanode
     ports:
       - ${HADOOP_DATA_NODE_PORT}:9864
     volumes:
@@ -37,17 +34,16 @@ services:
       - ./hadoop/hadoop.env
     networks:
       - hadoop-network
-  
+
   resourcemanager:
     image: bde2020/hadoop-resourcemanager:${HADOOP_VERSION}
     container_name: hadoop-resourcemanager
-    hostname:
-      resourcemanager
+    restart: always
+    hostname: resourcemanager
     ports:
       - ${HADOOP_RESOURCE_MANAGER1_PORT}:8088
       - ${HADOOP_RESOURCE_MANAGER2_PORT}:8032
       - ${HADOOP_RESOURCE_MANAGER3_PORT}:8031
-    restart: always
     environment:
       SERVICE_PRECONDITION: "namenode:${HADOOP_NAME_NODE1_PORT} datanode:${HADOOP_DATA_NODE_PORT}"
     env_file:
@@ -59,8 +55,7 @@ services:
     image: bde2020/hadoop-nodemanager:${HADOOP_VERSION}
     container_name: hadoop-nodemanager1
     restart: always
-    hostname:
-      nodemanager
+    hostname: nodemanager
     ports:
       - ${HADOOP_NODE_MANAGER1_PORT}:8042
     environment:
@@ -69,13 +64,12 @@ services:
       - ./hadoop/hadoop.env
     networks:
       - hadoop-network
-  
+
   historyserver:
     image: bde2020/hadoop-historyserver:${HADOOP_VERSION}
     container_name: hadoop-historyserver
     restart: always
-    hostname:
-      historyserver
+    hostname: historyserver
     ports:
       - ${HADOOP_HISTORY_SERVER_PORT}:8188
     environment:
@@ -89,7 +83,7 @@ services:
 
   hive-server:
     image: bde2020/hive:${HIVE_METASTORE_VERSION}
-    container_name : hive-server
+    container_name: hive-server
     environment:
       HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
       SERVICE_PRECONDITION: "hive-metastore:${HIVE_METASTORE_PORT}"
@@ -133,9 +127,7 @@ volumes:
   hadoop_historyserver:
   hive_data:
 
-
 networks:
   hadoop-network:
     driver: bridge
     name: hadoop-network
-    
