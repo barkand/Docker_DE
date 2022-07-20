@@ -12,7 +12,7 @@ services:
     networks:
       - network
     volumes:
-      - ./mongodb/data:/data
+      - ./mongodb/db:/data/db
 
 networks:
   network:
