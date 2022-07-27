@@ -1,10 +1,10 @@
-version: '3.6'
+version: "3.6"
 services:
-
   spark-master:
     image: ${SPARK_VERSION}
     build: ./spark/build/spark
     container_name: spark-master
+    restart: always
     hostname: spark-master
     ports:
       - ${SPARK_MASTER1_PORT}:8080
@@ -16,9 +16,9 @@ services:
       - SPARK_LOCAL_HOSTNAME=spark-master
       - CORE_CONF_fs_defaultFS=hdfs://namenode:${HDFS_NAMENODE_PORT} #hadoop
     volumes:
-       - ./spark/shared/apps:/opt/spark-apps
-       - ./spark/shared/data:/opt/spark-data
-       - ./spark/master/logs:/opt/spark/logs
+      - ./spark/shared/apps:/opt/spark-apps
+      - ./spark/shared/data:/opt/spark-data
+      - ./spark/master/logs:/opt/spark/logs
     env_file:
       - ./Hadoop/hadoop.env
     networks:
@@ -85,10 +85,9 @@ services:
       - spark-network
       - hadoop-network
 
-  
-# tip: First time Run without pyspark (for make image) then run this service
+  # tip: First time Run without pyspark (for make image) then run this service
   pyspark:
-    image: ${PYSPARK_VERSION}    
+    image: ${PYSPARK_VERSION}
     build: ./spark/build/pyspark
     container_name: spark-pyspark
     hostname: pyspark
@@ -102,11 +101,11 @@ services:
       - SPARK_LOCAL_HOSTNAME=pyspark
       - CORE_CONF_fs_defaultFS=hdfs://namenode:${HDFS_NAMENODE_PORT}
     depends_on:
-        - spark-master  
+      - spark-master
     volumes:
       - ./spark/shared/apps:/opt/spark-apps
       - ./spark/shared/data:/opt/spark-data
-      - ./spark/pyspark/config:/root/.jupyter  # save password config
+      - ./spark/pyspark/config:/root/.jupyter # save password config
       - ./spark/notebooks:/opt/spark-notebooks
     env_file:
       - ./Hadoop/hadoop.env
@@ -114,11 +113,9 @@ services:
       - spark-network
       - hadoop-network
 
-
 networks:
   spark-network:
     driver: bridge
     name: spark-network
   hadoop-network:
     external: true
-    
