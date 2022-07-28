@@ -29,6 +29,7 @@ services:
     image: ${SPARK_VERSION}
     build: ./spark/build/spark
     container_name: spark-worker1
+    restart: always
     hostname: spark-worker1
     depends_on:
       - spark-master
