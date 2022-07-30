@@ -92,6 +92,7 @@ services:
     image: ${PYSPARK_VERSION}
     build: ./spark/build/pyspark
     container_name: spark-pyspark
+    restart: always
     hostname: pyspark
     ports:
       - ${SPARK_PYSPARK_PORT}:8888
