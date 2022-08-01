@@ -16,6 +16,7 @@ services:
   promtail:
     image: grafana/promtail:${PROMTAIL_VERSION}
     container_name: plg-promtail
+    restart: always
     command: -config.file=/etc/promtail/docker-config.yaml
     depends_on:
       - loki
