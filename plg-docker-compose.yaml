@@ -30,6 +30,7 @@ services:
   prometheus:
     image: prom/prometheus:${PROMETHEUS_VERSION}
     container_name: plg-prometheus
+    restart: always
     ports:
       - ${PROMETHEUS_PORT}:9090
     command: >-
