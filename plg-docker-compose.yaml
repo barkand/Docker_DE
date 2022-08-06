@@ -63,6 +63,7 @@ services:
   grafana:
     image: grafana/grafana:${GRAFANA_VERSION}
     container_name: plg-grafana
+    restart: always
     ports:
       - ${GRAFANA_PORT}:3000
     # links:
