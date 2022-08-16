@@ -3,11 +3,11 @@ services:
   loki:
     image: grafana/loki:${LOKI_VERSION}
     container_name: plg-loki
+    restart: always
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./plg/loki/tmp:/tmp/loki
       - ./plg/loki/config/local-config.yaml:/etc/loki/local-config.yaml
-    restart: always
     networks:
       - plg-network
       # - grafana-loki
