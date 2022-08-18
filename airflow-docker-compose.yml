@@ -47,6 +47,7 @@ services:
   redis:
     image: redis:alpine
     container_name: airflow-redis
+    restart: always
     expose:
       - 6379
     healthcheck:
@@ -54,7 +55,6 @@ services:
       interval: 5s
       timeout: 30s
       retries: 50
-    restart: always
 
   airflow-webserver:
     <<: *airflow-common
