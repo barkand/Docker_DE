@@ -1,4 +1,2 @@
-promtail/log/*
-loki/tmp/*
-prometheus/log/*
-grafana/data/*
+/promtail
+/grafana

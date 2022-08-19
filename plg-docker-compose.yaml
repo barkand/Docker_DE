@@ -1,107 +1,65 @@
-version: "3"
-services:
-  loki:
-    image: grafana/loki:${LOKI_VERSION}
-    container_name: plg-loki
-    restart: always
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - ./plg/loki/tmp:/tmp/loki
-      - ./plg/loki/config/local-config.yaml:/etc/loki/local-config.yaml
-    networks:
-      - plg-network
-      # - grafana-loki
-      # - promtail-loki
+version: "3.9"
 
-  promtail:
-    image: grafana/promtail:${PROMTAIL_VERSION}
-    container_name: plg-promtail
-    restart: always
-    command: -config.file=/etc/promtail/docker-config.yaml
-    depends_on:
-      - loki
+volumes:
+  grafana_data: {}
+
+networks:
+  network:
+
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:${GRAFANA_VERSION}
+    ports:
+      - ${GRAFANA_PORT}:3000
+    environment:
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Read Only Editor
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel,marcusolsson-gantt-panel,grafana-worldmap-panel,briangann-gauge-panel,natel-plotly-panel
+
     volumes:
-      - ./plg/promtail/log:/var/log
-      - ./plg/promtail/config/docker-config.yaml:/etc/promtail/docker-config.yaml
+      - ./plg/grafana/logs:/var/log/grafana
+      - ./plg/grafana/data:/var/lib/grafana
+      - ./plg/grafana/provisioning:/etc/grafana/provisioning
+      # - ./plg/grafana/config:/app.cfg
+      # - ./plg/grafana/grafana.ini:/etc/grafana/grafana.ini
+      # - ./plg/grafana/plugins:/var/lib/grafana/plugins
+    restart: always
     networks:
-      - plg-network
-      # - promtail-loki
+      - network
 
   prometheus:
     image: prom/prometheus:${PROMETHEUS_VERSION}
-    container_name: plg-prometheus
+    container_name: prometheus
     restart: always
+    volumes:
+      - ./plg/prometheus/:/etc/prometheus/
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
       - ${PROMETHEUS_PORT}:9090
-    command: >-
-      --config.file=/app.cfg/prometheus.yml
-      --storage.tsdb.path=/prometheus
-      --web.console.libraries=/usr/share/prometheus/console_libraries
-      --web.console.templates=/usr/share/prometheus/consoles
-    volumes:
-      - ./plg/prometheus/config:/app.cfg
-      - ./plg/prometheus/:/etc/prometheus/
     networks:
-      - plg-network
-      # - world
-      # - prometheus-cadvisor
-      # - grafana-prometheus
+      - network
 
-  cadvisor:
-    image: google/cadvisor:${CADVISOR_VERSION}
-    container_name: plg-cadvisor
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    networks:
-      - plg-network
-      # - prometheus-cadvisor
-
-  grafana:
-    image: grafana/grafana:${GRAFANA_VERSION}
-    container_name: plg-grafana
-    restart: always
-    ports:
-      - ${GRAFANA_PORT}:3000
-    # links:
-    #   - influxdb
-    depends_on:
-      - loki
-      - prometheus
-    environment:
-      GF_SECURITY_ADMIN_USER: ${USER_PASSWORD}
-      GF_SECURITY_ADMIN_PASSWORD: ${USER_PASSWORD}
-      GF_PATHS_PROVISIONING: "/app.cfg/provisioning"
-    volumes:
-      - ./plg/grafana/config:/app.cfg
-      - ./plg/grafana/data:/var/lib/grafana
-    networks:
-      - plg-network
-      # - world
-      # - grafana-loki
-      # - grafana-prometheus
-
-volumes:
-  grafana:
-    name: grafana
   loki:
-    name: loki
-  prometheus:
-    name: prometheus
+    image: grafana/loki:${LOKI_VERSION}
+    container_name: loki
+    ports:
+      - ${LOKI_PORT}:3100
+    volumes:
+      - ./plg/loki/tmp:/tmp/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: always
+    networks:
+      - network
 
-networks:
-  plg-network:
-    driver: bridge
-    name: plg-network
-    # world:
-    # promtail-loki:
-    #     internal: true
-    # grafana-loki:
-    #     internal: true
-    # grafana-prometheus:
-    #     internal: true
-    # prometheus-cadvisor:
-    #     internal: true
+  promtail:
+    image: grafana/promtail:${PROMTAIL_VERSION}
+    container_name: promtail
+    volumes:
+      - ./plg/promtail/log:/var/log
+      - ./plg/promtail/config/docker-config.yaml:/etc/promtail/docker-config.yaml
+    restart: always
+    networks:
+      - network
