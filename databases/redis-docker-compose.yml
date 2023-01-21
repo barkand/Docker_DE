@@ -6,6 +6,8 @@ services:
     restart: always
     ports:
       - ${REDIS_PORT1}:6379
+    command: >
+      --requirepass ${USER_PASSWORD}
     networks:
       - network
 
